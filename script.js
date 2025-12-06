@@ -1,4 +1,4 @@
-// === CONFIG: grupos fijos ===
+// === CONFIG: grupos fijos (23 jugadores) ===
 const groups = {
   A: [
     "Hanlley",
@@ -6,6 +6,7 @@ const groups = {
     "XAVI",
     "✨️❤️K•M•D❤️✨️",
     "Ak",
+    "Johanssen",         // nuevo en grupo de Han
   ],
   B: [
     "GP PAO",
@@ -13,6 +14,7 @@ const groups = {
     "ARCEBOX",
     "JJ Calero",
     "Nanan",
+    "Mudito",            // nuevo en grupo B
   ],
   C: [
     "Electric Sheep",
@@ -27,8 +29,12 @@ const groups = {
     "Hunter💀",
     "Lucho",
     "El Makixx",
+    "Flups",             // nuevo en grupo de Lucho
   ],
 };
+
+// cambia clave para “resetear” al nuevo formato de 1 partida
+const STORAGE_KEY = "gallopinto_state_v2";
 
 // Estado de la tabla: standings[group][player] = { pj, pts, row }
 const standings = {};
@@ -118,7 +124,104 @@ function refreshRow(groupKey, playerName) {
   if (ptsCell) ptsCell.textContent = String(data.pts);
 }
 
-// === 3) Generar todos los partidos (todos contra todos) ===
+// === 3) Guardar / cargar estado en localStorage ===
+function saveState() {
+  const data = {
+    standings: {},
+    matches: {}
+  };
+
+  // standings
+  Object.entries(standings).forEach(([groupKey, playersMap]) => {
+    data.standings[groupKey] = {};
+    Object.entries(playersMap).forEach(([playerName, info]) => {
+      data.standings[groupKey][playerName] = {
+        pj: info.pj,
+        pts: info.pts
+      };
+    });
+  });
+
+  // matches
+  Object.keys(groups).forEach((groupKey) => {
+    const matchItems = document.querySelectorAll(
+      `.matches-card[data-group="${groupKey}"] .match-item`
+    );
+    data.matches[groupKey] = [];
+
+    matchItems.forEach((li) => {
+      const p1 = li.dataset.p1;
+      const p2 = li.dataset.p2;
+
+      const gameDiv = li.querySelector(".game");
+      const winnerSide = gameDiv ? (gameDiv.dataset.winner || "none") : "none";
+
+      data.matches[groupKey].push({
+        p1,
+        p2,
+        winner: winnerSide, // 'p1' | 'p2' | 'none'
+      });
+    });
+  });
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function loadState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    return;
+  }
+
+  // standings
+  if (data.standings) {
+    Object.entries(data.standings).forEach(([groupKey, playersMap]) => {
+      if (!standings[groupKey]) return;
+      Object.entries(playersMap).forEach(([playerName, info]) => {
+        if (!standings[groupKey][playerName]) return;
+        standings[groupKey][playerName].pj = info.pj ?? 0;
+        standings[groupKey][playerName].pts = info.pts ?? 0;
+        refreshRow(groupKey, playerName);
+      });
+    });
+  }
+
+  // partidos (solo visual, no tocamos puntos aquí)
+  if (data.matches) {
+    Object.entries(data.matches).forEach(([groupKey, matches]) => {
+      matches.forEach((m) => {
+        const selector = `.matches-card[data-group="${groupKey}"] .match-item[data-p1="${m.p1}"][data-p2="${m.p2}"]`;
+        const li = document.querySelector(selector);
+        if (!li) return;
+
+        const gameDiv = li.querySelector(".game");
+        if (!gameDiv) return;
+
+        const winnerSide = m.winner || "none";
+        gameDiv.dataset.winner = winnerSide;
+
+        const btns = gameDiv.querySelectorAll(".game-btn");
+        btns.forEach((b) => b.classList.remove("selected"));
+
+        if (winnerSide === "p1" || winnerSide === "p2") {
+          const winnerBtn = gameDiv.querySelector(
+            `.game-btn[data-winner="${winnerSide}"]`
+          );
+          if (winnerBtn) {
+            winnerBtn.classList.add("selected");
+          }
+        }
+      });
+    });
+  }
+}
+
+// === 4) Generar todos los partidos (todos contra todos) ===
 function generatePairings(players) {
   const matches = [];
   for (let i = 0; i < players.length; i++) {
@@ -129,7 +232,7 @@ function generatePairings(players) {
   return matches;
 }
 
-// === 4) Pintar los partidos con 2 partidas clicables ===
+// === 5) Pintar los partidos con 1 sola partida ===
 function renderMatches() {
   Object.entries(groups).forEach(([groupKey, players]) => {
     const list = document.querySelector(
@@ -155,17 +258,10 @@ function renderMatches() {
             ${p1} <span>vs</span> ${p2}
           </span>
         </div>
-        <div class="games-row">
-          <div class="game" data-game="1" data-winner="none">
-            <span class="game-label">Partida 1:</span>
-            <button class="game-btn" data-winner="p1">${p1}</button>
-            <button class="game-btn" data-winner="p2">${p2}</button>
-          </div>
-          <div class="game" data-game="2" data-winner="none">
-            <span class="game-label">Partida 2:</span>
-            <button class="game-btn" data-winner="p1">${p1}</button>
-            <button class="game-btn" data-winner="p2">${p2}</button>
-          </div>
+        <div class="game" data-winner="none">
+          <span class="game-label">Ganador:</span>
+          <button class="game-btn" data-winner="p1">${p1}</button>
+          <button class="game-btn" data-winner="p2">${p2}</button>
         </div>
       `;
 
@@ -176,13 +272,14 @@ function renderMatches() {
   attachMatchListeners();
 }
 
-// === 5) Lógica al marcar ganador de una partida ===
+// === 6) Lógica de una sola partida por duelo ===
 // Reglas:
-// - Cada partida ganada = 1 punto.
-// - PJ = partidas jugadas (cuenta para los dos jugadores).
-// - Si antes no había ganador → PJ++ para ambos, +1 punto al ganador.
-// - Si cambias de ganador → puntos se mueven, PJ no cambia.
-// - Si haces clic de nuevo sobre el mismo ganador → se deshace: PJ-- ambos y puntos-- para ese jugador.
+// - 1 partida por duelo.
+// - Cada victoria = 1 punto.
+// - PJ = partidas jugadas (cuenta para ambos jugadores).
+// - Si no había ganador → PJ++ ambos, +1 punto ganador.
+// - Si cambias de ganador → se mueve el punto, PJ no cambia.
+// - Si haces clic otra vez sobre el mismo → se deshace, PJ-- ambos, puntos-- ganador.
 function attachMatchListeners() {
   document.querySelectorAll(".game-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -199,48 +296,45 @@ function attachMatchListeners() {
       const winnerName = winnerSide === "p1" ? p1 : p2;
       const loserName = winnerSide === "p1" ? p2 : p1;
 
-      // Caso 1: volver a hacer clic sobre el mismo ganador → deshacer la partida
+      // 1) Deshacer: mismo ganador -> quitar resultado
       if (prevWinner === winnerSide) {
         gameDiv.dataset.winner = "none";
         gameDiv.querySelectorAll(".game-btn").forEach((b) =>
           b.classList.remove("selected")
         );
 
-        // quitar 1 PJ a ambos y 1 punto al ganador
         standings[groupKey][p1].pj -= 1;
         standings[groupKey][p2].pj -= 1;
         standings[groupKey][winnerName].pts -= 1;
 
         refreshRow(groupKey, p1);
         refreshRow(groupKey, p2);
+        saveState();
         return;
       }
 
-      // Caso 2: antes no había ganador (partida nueva)
+      // 2) Nueva partida (no había ganador)
       if (prevWinner === "none") {
-        // sumamos PJ a ambos
         standings[groupKey][p1].pj += 1;
         standings[groupKey][p2].pj += 1;
-
-        // sumamos punto al nuevo ganador
         standings[groupKey][winnerName].pts += 1;
       } else {
-        // Caso 3: cambiar de ganador (de p1 a p2 o viceversa)
+        // 3) Cambiar ganador (de p1 a p2 o viceversa)
         const prevWinnerName = prevWinner === "p1" ? p1 : p2;
         standings[groupKey][prevWinnerName].pts -= 1;
         standings[groupKey][winnerName].pts += 1;
       }
 
-      // actualizar estado visual y dataset
+      // actualizar visual
       gameDiv.dataset.winner = winnerSide;
       gameDiv.querySelectorAll(".game-btn").forEach((b) =>
         b.classList.remove("selected")
       );
       btn.classList.add("selected");
 
-      // refrescar tabla de ambos
       refreshRow(groupKey, p1);
       refreshRow(groupKey, p2);
+      saveState();
     });
   });
 }
@@ -250,8 +344,9 @@ document.addEventListener("DOMContentLoaded", () => {
   renderGroups();
   renderTables();
   renderMatches();
+  loadState();
   showBanner(
-    "Fase de grupos lista. Marca el ganador de cada partida para actualizar la tabla."
+    "Fase de grupos lista. Marca el ganador de cada duelo (1 partida) para actualizar la tabla."
   );
   setTimeout(hideBanner, 4000);
 });
