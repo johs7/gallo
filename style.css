@@ -1,0 +1,818 @@
+:root {
+    /* Paleta del clan: rojo + dorado + fondo claro */
+    --color-primary: #e02020;         /* Rojo principal */
+    --color-primary-dark: #b01818;    /* Rojo más oscuro */
+    --color-accent: #f4c542;          /* Dorado / amarillo */
+    --color-bg: #f7f7f7;              /* Fondo general */
+    --color-panel: #ffffff;           /* Tarjetas / panels */
+    --color-secondary: #ffffff;       /* Header claro */
+    --color-text: #222222;
+    --color-muted: #777777;
+    --color-line: #e0e0e0;
+    --round-gap: 28px;
+    --matchup-width: 170px;
+    --radius-soft: 10px;
+    --shadow-soft: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* Para que inputs y demás no queden con texto blanco */
+body,
+input,
+select,
+textarea,
+button {
+    font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--color-text);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    background-color: var(--color-bg);
+    /* ligero “papel sucio” */
+    background-image:
+        radial-gradient(circle at top left, rgba(0,0,0,0.04) 0, transparent 55%),
+        radial-gradient(circle at bottom right, rgba(0,0,0,0.03) 0, transparent 60%);
+}
+
+/* --- Encabezado y Controles --- */
+.header-clan {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background-color: var(--color-secondary);
+    border-bottom: 4px solid var(--color-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.logo-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 3px solid var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+}
+
+.logo-icon i {
+    font-size: 22px;
+    color: var(--color-primary);
+}
+
+.header-text h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: 0.08em;
+    color: var(--color-primary);
+}
+
+.header-text p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+}
+
+.controls-container {
+    padding: 10px 0 14px;
+    background-color: transparent;
+}
+
+#shuffleButton {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+    transition: transform 0.08s ease-out, box-shadow 0.12s ease-out, filter 0.12s ease-out;
+}
+
+#shuffleButton i {
+    font-size: 0.95rem;
+}
+
+#shuffleButton:hover {
+    filter: brightness(1.03);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+}
+
+#shuffleButton:active {
+    transform: translateY(1px) scale(0.98);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* --- Bracket Layout --- */
+.bracket-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: var(--round-gap);
+    padding: 20px 12px 40px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) #ddd;
+}
+
+/* Scrollbar Chrome */
+.bracket-container::-webkit-scrollbar {
+    height: 6px;
+}
+.bracket-container::-webkit-scrollbar-track {
+    background: #e6e6e6;
+}
+.bracket-container::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 999px;
+}
+
+.round {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+    min-width: 190px;
+}
+
+.round h2 {
+    color: var(--color-primary);
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+}
+
+/* Alineación vertical (forma de copa, pero más compacta) */
+.round-2 { margin-top: 70px; }
+.round-3 { margin-top: 140px; }
+.round-4 { margin-top: 175px; }
+.champion { margin-top: 210px; }
+
+/* --- Matchups --- */
+.matchup {
+    background: var(--color-panel);
+    border-radius: var(--radius-soft);
+    border: 1px solid rgba(224, 224, 224, 0.9);
+    width: var(--matchup-width);
+    position: relative;
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+}
+
+.matchup.final-match {
+    border: 1px solid rgba(224, 32, 32, 0.7);
+}
+
+/* barra vertical roja a la izquierda */
+.matchup::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--color-primary), var(--color-accent));
+}
+
+/* Conexión horizontal */
+.matchup::after {
+    content: '';
+    position: absolute;
+    right: -22px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 1px;
+    background-color: var(--color-line);
+}
+
+/* En la final no sacamos línea a la derecha */
+.round-4 .matchup::after {
+    display: none;
+}
+
+/* --- Jugadores --- */
+.player {
+    background-color: #ffffff;      /* aquí ya no es “transparente” */
+    padding: 6px 10px 6px 14px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: background-color 0.08s ease-out, color 0.08s ease-out, transform 0.05s ease-out;
+}
+
+.player.p-top {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.player:hover {
+    background-color: #ffe5e5;
+    color: #111;
+    transform: translateX(1px);
+}
+
+/* Si desde JS marcas ganador, se verá dorado */
+.player.winner {
+    background: linear-gradient(135deg, #ffeaa0, #f4c542);
+    color: #402500;
+    font-weight: 700;
+}
+
+/* --- Campeón --- */
+.champion {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    min-width: 200px;
+}
+
+.champion h2 {
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.champion h2 i {
+    color: var(--color-accent);
+}
+
+.winner-box {
+    background: linear-gradient(135deg, #ffeaa0, #f4c542);
+    color: #3b2600;
+    padding: 10px 18px;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.25);
+    min-width: var(--matchup-width);
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* =========  TABLET (<= 768px)  ========= */
+@media (max-width: 768px) {
+  .header-clan {
+    padding: 10px 12px;
+  }
+
+  .header-text h1 {
+    font-size: 1.2rem;
+  }
+
+  .header-text p {
+    font-size: 0.78rem;
+  }
+
+  .controls-container {
+    padding: 8px 0 10px;
+  }
+
+  #shuffleButton {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+
+  .bracket-container {
+    padding: 14px 8px 24px;
+    gap: 18px;              /* menos separación entre rondas */
+  }
+
+  .round {
+    min-width: 150px;       /* rounds más compactos */
+    gap: 18px;
+  }
+
+  /* menos “escalonado” para que no se vaya tan abajo en vertical */
+  .round-2 { margin-top: 45px; }
+  .round-3 { margin-top: 90px; }
+  .round-4 { margin-top: 115px; }
+  .champion { margin-top: 135px; }
+
+  .matchup {
+    width: 150px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+  }
+
+  .player {
+    padding: 5px 8px 5px 12px;
+    font-size: 0.72rem;
+  }
+
+  .winner-box {
+    min-width: 150px;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+}
+
+/* =========  CELULAR CHICO (<= 480px)  ========= */
+@media (max-width: 480px) {
+  .header-clan {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .logo-box {
+    width: 40px;
+    height: 40px;
+    border-width: 2px;
+  }
+
+  .header-text h1 {
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+  }
+
+  .header-text p {
+    font-size: 0.72rem;
+  }
+
+  #shuffleButton {
+    width: 90%;
+    justify-content: center;
+  }
+
+  .bracket-container {
+    padding: 10px 4px 20px;
+    gap: 14px;
+  }
+
+  .round {
+    min-width: 135px;
+  }
+
+  .round h2 {
+    font-size: 0.78rem;
+  }
+
+  .round-2 { margin-top: 35px; }
+  .round-3 { margin-top: 70px; }
+  .round-4 { margin-top: 90px; }
+  .champion { margin-top: 105px; }
+
+  .matchup {
+    width: 135px;
+  }
+
+  .player {
+    font-size: 0.68rem;
+  }
+
+  .winner-box {
+    min-width: 135px;
+    font-size: 0.8rem;
+  }
+}
+
+
+/* Ganador con animación tipo "pop" */
+.player.winner {
+    background: linear-gradient(135deg, #ffeaa0, #f4c542);
+    color: #402500;
+    font-weight: 700;
+    animation: winner-pop 0.2s ease-out;
+}
+
+@keyframes winner-pop {
+    0%   { transform: scale(0.95); }
+    60%  { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Confeti global */
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0; /* no hace falta alto, solo es origen */
+    pointer-events: none;
+    z-index: 9999;
+    overflow: visible;
+}
+
+.confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 14px;
+    border-radius: 2px;
+    opacity: 0.9;
+    animation-name: confetti-fall;
+    animation-timing-function: cubic-bezier(0.33, 0, 0.67, 1);
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translate3d(0, -110vh, 0) rotateZ(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(10px, 115vh, 0) rotateZ(360deg);
+        opacity: 0;
+    }
+}
+/* Botón en estado "cargando sorteo" */
+#shuffleButton.shuffle-loading {
+  opacity: 0.9;
+  cursor: wait;
+}
+
+/* Banner central de sorteo */
+.draw-banner {
+  position: fixed;
+  top: 70px; /* un poco debajo del header */
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 999px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.28);
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+
+/* contenido del banner */
+.draw-banner .draw-number {
+  background-color: rgba(0, 0, 0, 0.25);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.draw-banner .draw-vs span {
+  margin: 0 6px;
+  font-weight: 700;
+}
+
+/* cuando se muestra */
+.draw-banner.show {
+  animation: banner-pop 0.35s ease-out forwards;
+}
+
+@keyframes banner-pop {
+  0% {
+    transform: translateX(-50%) translateY(-14px) scale(0.96);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(-50%) translateY(0) scale(1.03);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Resaltar el enfrentamiento actual del sorteo */
+.matchup-active {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 10px 24px rgba(224, 32, 32, 0.35);
+  border-color: rgba(224, 32, 32, 0.8);
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, border-color 0.15s ease-out;
+}
+
+/* Animación de aparición de jugador (ya la usábamos, la reforzamos) */
+.reveal-player {
+  animation: reveal-player 0.22s ease-out;
+}
+
+@keyframes reveal-player {
+  0% {
+    transform: translateY(-4px);
+    opacity: 0;
+    filter: blur(2px);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* === FASE DE GRUPOS === */
+
+.groups-container {
+  max-width: 1100px;
+  margin: 0 auto 24px;
+  padding: 16px 12px;
+  text-align: left;
+}
+
+.groups-container h2 {
+  margin: 0 0 6px;
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.groups-hint {
+  margin: 0 0 12px;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+}
+
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.group-card {
+  background-color: var(--color-panel);
+  border-radius: var(--radius-soft);
+  border: 1px solid rgba(224, 224, 224, 0.9);
+  padding: 10px 10px 8px;
+  box-shadow: var(--shadow-soft);
+}
+
+.group-card h3 {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  color: var(--color-primary-dark);
+}
+
+.group-hint {
+  margin: 6px 0 0;
+  font-size: 0.72rem;
+  color: var(--color-muted);
+}
+
+.group-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+
+.group-player {
+  font-size: 0.78rem;
+  padding: 4px 7px;
+  border-radius: 6px;
+  margin-bottom: 3px;
+  background-color: #fafafa;
+  cursor: pointer;
+  transition: background-color 0.12s ease-out, transform 0.08s ease-out;
+}
+
+.group-player:hover {
+  background-color: #ffe5e5;
+  transform: translateX(1px);
+}
+
+/* jugador marcado como clasificado */
+.group-player.qualified {
+  background: linear-gradient(135deg, #ffeaa0, #f4c542);
+  color: #3b2600;
+  font-weight: 600;
+}
+
+/* layout responsivo */
+@media (max-width: 900px) {
+  .groups-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .groups-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* === TABLAS DE POSICIONES === */
+
+.tables-container {
+  max-width: 1100px;
+  margin: 0 auto 24px;
+  padding: 0 12px 16px;
+}
+
+.tables-container h2 {
+  margin-bottom: 6px;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-primary);
+}
+
+.tables-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.table-card {
+  background-color: var(--color-panel);
+  border-radius: var(--radius-soft);
+  border: 1px solid rgba(224, 224, 224, 0.9);
+  padding: 10px;
+  box-shadow: var(--shadow-soft);
+}
+
+.table-card h3 {
+  margin: 0 0 6px;
+  font-size: 0.92rem;
+  color: var(--color-primary-dark);
+}
+
+.table-card table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.table-card th,
+.table-card td {
+  padding: 4px 6px;
+  text-align: left;
+}
+
+.table-card thead {
+  border-bottom: 1px solid #eee;
+}
+
+.table-card tbody tr:nth-child(odd) {
+  background-color: #fafafa;
+}
+
+.table-card td.editable {
+  cursor: pointer;
+}
+
+.table-card td.editable:hover {
+  background-color: #ffe5e5;
+}
+
+/* === PARTIDOS POR GRUPO === */
+
+.matches-container {
+  max-width: 1100px;
+  margin: 0 auto 32px;
+  padding: 0 12px 24px;
+}
+
+.matches-container h2 {
+  margin-bottom: 6px;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-primary);
+}
+
+.matches-hint {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin-bottom: 10px;
+}
+
+.matches-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.matches-card {
+  background-color: var(--color-panel);
+  border-radius: var(--radius-soft);
+  border: 1px solid rgba(224, 224, 224, 0.9);
+  padding: 10px;
+  box-shadow: var(--shadow-soft);
+}
+
+.matches-card h3 {
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+  color: var(--color-primary-dark);
+}
+
+.matches-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.match-item {
+  padding: 4px 6px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  background-color: #fafafa;
+  font-size: 0.76rem;
+}
+
+.match-label {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.match-vs span {
+  font-weight: 600;
+  margin: 0 4px;
+}
+
+.match-note {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--color-muted);
+}
+
+/* responsive */
+@media (max-width: 900px) {
+  .tables-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .matches-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .tables-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.games-row {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.game {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.game-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.game-btn {
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.12s ease-out, transform 0.05s ease-out,
+    border-color 0.12s ease-out;
+}
+
+.game-btn:hover {
+  background-color: #ffe5e5;
+  transform: translateY(-1px);
+}
+
+.game-btn.selected {
+  background: linear-gradient(135deg, #ffeaa0, #f4c542);
+  border-color: #e0b73a;
+  color: #3b2600;
+  font-weight: 600;
+}

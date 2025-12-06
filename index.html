@@ -1,0 +1,116 @@
+<body>
+
+  <header class="header-clan">
+      <link rel="stylesheet" href="style.css" />
+    <div class="logo-box">
+      <span class="logo-icon">
+        <i class="fa-solid fa-crown"></i>
+      </span>
+    </div>
+    <div class="header-text">
+      <h1>Gallo Pinto Champions</h1>
+      <p>Fase de grupos · 21 jugadores (1 grupo de 6 y 3 de 5)</p>
+    </div>
+  </header>
+
+  <!-- Banner de info -->
+  <div id="drawBanner" class="draw-banner"></div>
+
+ 
+
+  <!-- TABLAS DE POSICIONES -->
+  <section class="tables-container">
+    <h2>Tablas de posiciones</h2>
+    <p class="groups-hint">
+      Haz clic en los puntos de cada jugador para editarlos manualmente. Pasan los primeros 2 de cada grupo.
+    </p>
+
+    <div class="tables-grid">
+      <div class="table-card" data-group="A">
+        <h3>Grupo A</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Jugador</th>
+              <th>PJ</th>
+              <th>Puntos</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="table-card" data-group="B">
+        <h3>Grupo B</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Jugador</th>
+              <th>PJ</th>
+              <th>Puntos</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="table-card" data-group="C">
+        <h3>Grupo C</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Jugador</th>
+              <th>PJ</th>
+              <th>Puntos</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="table-card" data-group="D">
+        <h3>Grupo D</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Jugador</th>
+              <th>PJ</th>
+              <th>Puntos</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARTIDOS POR GRUPO -->
+  <section class="matches-container">
+    <h2>Partidos a jugar</h2>
+    <p class="matches-hint">
+      Cada enfrentamiento se juega a 2 partidas. Puedes jugar 2 grupos a la vez sin problema.
+    </p>
+
+    <div class="matches-grid">
+      <div class="matches-card" data-group="A">
+        <h3>Grupo A</h3>
+        <ul class="matches-list"></ul>
+      </div>
+      <div class="matches-card" data-group="B">
+        <h3>Grupo B</h3>
+        <ul class="matches-list"></ul>
+      </div>
+      <div class="matches-card" data-group="C">
+        <h3>Grupo C</h3>
+        <ul class="matches-list"></ul>
+      </div>
+      <div class="matches-card" data-group="D">
+        <h3>Grupo D</h3>
+        <ul class="matches-list"></ul>
+      </div>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
